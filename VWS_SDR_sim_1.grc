@@ -33,6 +33,18 @@ options:
     state: enabled
 
 blocks:
+- name: fc_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: '192000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [192, 88.0]
+    rotation: 0
+    state: enabled
 - name: gain
   id: variable_qtgui_range
   parameters:
@@ -92,8 +104,8 @@ blocks:
     alias: ''
     comment: 4,0,1,3
     gui_hint: 4,0,1,3
-    lbl: Frequency
-    maxFreqHz: 150e6
+    lbl: Frequency (Hz)
+    maxFreqHz: 200e6
     maxoutbuf: '0'
     minFreqHz: 300e3
     minoutbuf: '0'
@@ -106,7 +118,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [320, 568.0]
+    coordinate: [464, 568.0]
     rotation: 180
     state: enabled
 - name: samp_rate
@@ -125,12 +137,12 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '192000'
+    value: '768000'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [192, 88.0]
+    coordinate: [192, 160.0]
     rotation: 0
     state: true
 - name: audio_sink_0
@@ -147,7 +159,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [920, 224.0]
+    coordinate: [1120, 280.0]
     rotation: 0
     state: enabled
 - name: blocks_complex_to_float_0
@@ -163,7 +175,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [744, 224.0]
+    coordinate: [944, 280.0]
     rotation: 0
     state: enabled
 - name: blocks_selector_0
@@ -173,12 +185,12 @@ blocks:
     alias: ''
     comment: ''
     enabled: 'True'
-    input_index: out_sel
+    input_index: '0'
     maxoutbuf: '0'
     minoutbuf: '0'
     num_inputs: '1'
     num_outputs: '2'
-    output_index: '0'
+    output_index: out_sel
     showports: 'True'
     type: complex
     vlen: '1'
@@ -186,16 +198,36 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [520, 272.0]
+    coordinate: [528, 272.0]
     rotation: 0
     state: enabled
+- name: dc_blocker_xx_0
+  id: dc_blocker_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'Enable to block DC
+
+      from FunCube'
+    length: '32'
+    long_form: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: cc
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [320, 296.0]
+    rotation: 0
+    state: bypassed
 - name: funcube_fcdpp_0
   id: funcube_fcdpp
   parameters:
     affinity: ''
     alias: ''
     comment: ''
-    device_name: ' "hw:2,6"'
+    device_name: ' ""'
     freq: 14.25e6
     if_gain: gain
     lnaswitch: '1'
@@ -219,12 +251,12 @@ blocks:
     beta: '6.76'
     comment: ''
     cutoff_freq: '20000'
-    decim: (int)(usrp_rate/samp_rate)
+    decim: (int)(fc_rate/samp_rate)
     gain: '1'
     interp: '1'
     maxoutbuf: '0'
     minoutbuf: '0'
-    samp_rate: samp_rate
+    samp_rate: fc_rate
     type: fir_filter_ccf
     width: '2000'
     win: window.WIN_HAMMING
@@ -232,7 +264,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [344, 252.0]
+    coordinate: [760, 236.0]
     rotation: 0
     state: enabled
 - name: qtgui_waterfall_sink_x_0
@@ -293,17 +325,39 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [344, 432.0]
+    coordinate: [472, 432.0]
     rotation: 0
     state: true
+- name: rational_resampler_xxx_0
+  id: rational_resampler_xxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    decim: '1'
+    fbw: '0'
+    interp: (int)(usrp_rate/fc_rate)
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    taps: '[]'
+    type: ccc
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [808, 472.0]
+    rotation: 0
+    state: enabled
 - name: zeromq_pub_sink_0
   id: zeromq_pub_sink
   parameters:
-    address: tcp://127.0.0.1:49501
+    address: tcp://127.0.0.1:49201
     affinity: ''
     alias: ''
     bind: 'True'
-    comment: ''
+    comment: 'USRP rate = 768kHz
+
+      for testing'
     drop_on_hwm: 'True'
     hwm: '-1'
     key: ''
@@ -315,21 +369,23 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [744, 360.0]
+    coordinate: [984, 464.0]
     rotation: 0
     state: true
 
 connections:
 - [blocks_complex_to_float_0, '0', audio_sink_0, '0']
 - [blocks_complex_to_float_0, '1', audio_sink_0, '1']
-- [blocks_selector_0, '0', blocks_complex_to_float_0, '0']
-- [blocks_selector_0, '1', zeromq_pub_sink_0, '0']
-- [funcube_fcdpp_0, '0', low_pass_filter_0, '0']
-- [funcube_fcdpp_0, '0', qtgui_waterfall_sink_x_0, '0']
-- [low_pass_filter_0, '0', blocks_selector_0, '0']
+- [blocks_selector_0, '0', low_pass_filter_0, '0']
+- [blocks_selector_0, '1', rational_resampler_xxx_0, '0']
+- [dc_blocker_xx_0, '0', blocks_selector_0, '0']
+- [dc_blocker_xx_0, '0', qtgui_waterfall_sink_x_0, '0']
+- [funcube_fcdpp_0, '0', dc_blocker_xx_0, '0']
+- [low_pass_filter_0, '0', blocks_complex_to_float_0, '0']
 - [qtgui_msgdigitalnumbercontrol_0, valueout, funcube_fcdpp_0, freq]
 - [qtgui_msgdigitalnumbercontrol_0, valueout, qtgui_waterfall_sink_x_0, freq]
 - [qtgui_waterfall_sink_x_0, freq, qtgui_msgdigitalnumbercontrol_0, valuein]
+- [rational_resampler_xxx_0, '0', zeromq_pub_sink_0, '0']
 
 metadata:
   file_format: 1

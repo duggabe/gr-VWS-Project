@@ -67,11 +67,12 @@ class VWS_SDR_sim_1(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.usrp_rate = usrp_rate = 192000
+        self.usrp_rate = usrp_rate = 768000
         self.samp_rate = samp_rate = 48000
         self.qtgui_msgdigitalnumbercontrol_0 = qtgui_msgdigitalnumbercontrol_0 = 14.250e6
         self.out_sel = out_sel = 0
         self.gain = gain = 6
+        self.fc_rate = fc_rate = 192000
 
         ##################################################
         # Blocks
@@ -113,7 +114,12 @@ class VWS_SDR_sim_1(gr.top_block, Qt.QWidget):
             self.top_grid_layout.setRowStretch(r, 1)
         for c in range(0, 3):
             self.top_grid_layout.setColumnStretch(c, 1)
-        self.zeromq_pub_sink_0 = zeromq.pub_sink(gr.sizeof_gr_complex, 1, 'tcp://127.0.0.1:49501', 100, False, (-1), '', True, True)
+        self.zeromq_pub_sink_0 = zeromq.pub_sink(gr.sizeof_gr_complex, 1, 'tcp://127.0.0.1:49201', 100, False, (-1), '', True, True)
+        self.rational_resampler_xxx_0 = filter.rational_resampler_ccc(
+                interpolation=((int)(usrp_rate/fc_rate)),
+                decimation=1,
+                taps=[],
+                fractional_bw=0)
         self.qtgui_waterfall_sink_x_0 = qtgui.waterfall_sink_c(
             1024, #size
             window.WIN_BLACKMAN_hARRIS, #wintype
@@ -153,7 +159,7 @@ class VWS_SDR_sim_1(gr.top_block, Qt.QWidget):
             self.top_grid_layout.setRowStretch(r, 1)
         for c in range(0, 3):
             self.top_grid_layout.setColumnStretch(c, 1)
-        self._qtgui_msgdigitalnumbercontrol_0_msgdigctl_win = qtgui.MsgDigitalNumberControl(lbl='Frequency', min_freq_hz=300e3, max_freq_hz=150e6, parent=self, thousands_separator=",", background_color="black", fontColor="white", var_callback=self.set_qtgui_msgdigitalnumbercontrol_0, outputmsgname='freq')
+        self._qtgui_msgdigitalnumbercontrol_0_msgdigctl_win = qtgui.MsgDigitalNumberControl(lbl='Frequency (Hz)', min_freq_hz=300e3, max_freq_hz=200e6, parent=self, thousands_separator=",", background_color="black", fontColor="white", var_callback=self.set_qtgui_msgdigitalnumbercontrol_0, outputmsgname='freq')
         self._qtgui_msgdigitalnumbercontrol_0_msgdigctl_win.setValue(14.250e6)
         self._qtgui_msgdigitalnumbercontrol_0_msgdigctl_win.setReadOnly(False)
         self.qtgui_msgdigitalnumbercontrol_0 = self._qtgui_msgdigitalnumbercontrol_0_msgdigctl_win
@@ -164,22 +170,22 @@ class VWS_SDR_sim_1(gr.top_block, Qt.QWidget):
         for c in range(0, 3):
             self.top_grid_layout.setColumnStretch(c, 1)
         self.low_pass_filter_0 = filter.fir_filter_ccf(
-            ((int)(usrp_rate/samp_rate)),
+            ((int)(fc_rate/samp_rate)),
             firdes.low_pass(
                 1,
-                samp_rate,
+                fc_rate,
                 20000,
                 2000,
                 window.WIN_HAMMING,
                 6.76))
-        self.funcube_fcdpp_0 = funcube.fcdpp( "hw:2,6", 1 )
+        self.funcube_fcdpp_0 = funcube.fcdpp( "", 1 )
 
         self.funcube_fcdpp_0.set_lna(1)
         self.funcube_fcdpp_0.set_mixer_gain(1)
         self.funcube_fcdpp_0.set_if_gain(gain)
         self.funcube_fcdpp_0.set_freq_corr(0)
         self.funcube_fcdpp_0.set_freq(14.25e6)
-        self.blocks_selector_0 = blocks.selector(gr.sizeof_gr_complex*1,out_sel,0)
+        self.blocks_selector_0 = blocks.selector(gr.sizeof_gr_complex*1,0,out_sel)
         self.blocks_selector_0.set_enabled(True)
         self.blocks_complex_to_float_0 = blocks.complex_to_float(1)
         self.audio_sink_0 = audio.sink(samp_rate, '', True)
@@ -191,13 +197,14 @@ class VWS_SDR_sim_1(gr.top_block, Qt.QWidget):
         self.msg_connect((self.qtgui_msgdigitalnumbercontrol_0, 'valueout'), (self.funcube_fcdpp_0, 'freq'))
         self.msg_connect((self.qtgui_msgdigitalnumbercontrol_0, 'valueout'), (self.qtgui_waterfall_sink_x_0, 'freq'))
         self.msg_connect((self.qtgui_waterfall_sink_x_0, 'freq'), (self.qtgui_msgdigitalnumbercontrol_0, 'valuein'))
-        self.connect((self.blocks_complex_to_float_0, 1), (self.audio_sink_0, 1))
         self.connect((self.blocks_complex_to_float_0, 0), (self.audio_sink_0, 0))
-        self.connect((self.blocks_selector_0, 0), (self.blocks_complex_to_float_0, 0))
-        self.connect((self.blocks_selector_0, 1), (self.zeromq_pub_sink_0, 0))
-        self.connect((self.funcube_fcdpp_0, 0), (self.low_pass_filter_0, 0))
+        self.connect((self.blocks_complex_to_float_0, 1), (self.audio_sink_0, 1))
+        self.connect((self.blocks_selector_0, 0), (self.low_pass_filter_0, 0))
+        self.connect((self.blocks_selector_0, 1), (self.rational_resampler_xxx_0, 0))
+        self.connect((self.funcube_fcdpp_0, 0), (self.blocks_selector_0, 0))
         self.connect((self.funcube_fcdpp_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
-        self.connect((self.low_pass_filter_0, 0), (self.blocks_selector_0, 0))
+        self.connect((self.low_pass_filter_0, 0), (self.blocks_complex_to_float_0, 0))
+        self.connect((self.rational_resampler_xxx_0, 0), (self.zeromq_pub_sink_0, 0))
 
 
     def closeEvent(self, event):
@@ -220,7 +227,6 @@ class VWS_SDR_sim_1(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, 20000, 2000, window.WIN_HAMMING, 6.76))
 
     def get_qtgui_msgdigitalnumbercontrol_0(self):
         return self.qtgui_msgdigitalnumbercontrol_0
@@ -234,7 +240,7 @@ class VWS_SDR_sim_1(gr.top_block, Qt.QWidget):
     def set_out_sel(self, out_sel):
         self.out_sel = out_sel
         self._out_sel_callback(self.out_sel)
-        self.blocks_selector_0.set_input_index(self.out_sel)
+        self.blocks_selector_0.set_output_index(self.out_sel)
 
     def get_gain(self):
         return self.gain
@@ -242,6 +248,13 @@ class VWS_SDR_sim_1(gr.top_block, Qt.QWidget):
     def set_gain(self, gain):
         self.gain = gain
         self.funcube_fcdpp_0.set_if_gain(self.gain)
+
+    def get_fc_rate(self):
+        return self.fc_rate
+
+    def set_fc_rate(self, fc_rate):
+        self.fc_rate = fc_rate
+        self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.fc_rate, 20000, 2000, window.WIN_HAMMING, 6.76))
 
 
 
