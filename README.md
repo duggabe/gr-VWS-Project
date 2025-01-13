@@ -29,7 +29,7 @@ sudo apt install git
 ```
 4. Clone the repository:  
 ```
-git clone https://github.com/duggabe/gr-control.git
+git clone https://github.com/duggabe/gr-VWS-Project.git
 ```
 5. To use the FunCubePro Plus dongle, you must install gr-funcube using a terminal screen as follows (one line at a time):  
 
@@ -54,6 +54,9 @@ After I built gr-funcube, I was getting an error from `import funcube` until I a
 export PYTHONPATH=/usr/lib/python3/dist-packages:/usr/lib/python3.12/site-packages:$PYTHONPATH
 export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
 ```
+
+For further explanation, see [ModuleNotFoundError](https://wiki.gnuradio.org/index.php/ModuleNotFoundError).
+
 ## Operation
 **NOTES:**  
 The package uses two separate processes: (a) the VWS_SDR Simulation and (b) a SSB Receiver. These run in two terminal windows (or tabs).
@@ -83,7 +86,7 @@ cd ~/gr-VWS-Project
     `python3 -u SSB_rcv_2.py`    for an audio interface  
 4. A new window will open showing various controls. To terminate that window, click the "X" in the upper right corner.
 
-## Loopback Testing
+## Testing
 
 TBD
 
