@@ -67,7 +67,7 @@ cd ~/gr-VWS-Project
 ```
 3. Execute the VWS_SDR Simulation
 ```
-python3 -u VWS_SDR_sim_1
+python3 -u VWS_SDR_sim_1.py
 ```
 4. A new window will open showing various controls and a waterfall display. To terminate that window, click the "X" in the upper right corner.
 
