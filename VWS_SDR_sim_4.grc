@@ -1,0 +1,303 @@
+options:
+  parameters:
+    author: Barry Duggan
+    catch_exceptions: 'True'
+    category: '[GRC Hier Blocks]'
+    cmake_opt: ''
+    comment: ''
+    copyright: CC-BY-SA-4.0
+    description: VWS SDR sim
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: no_gui
+    hier_block_src_path: '.:'
+    id: VWS_SDR_sim_4
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: prompt
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: VWS_SDR_sim_4
+    window_size: (1000,1000)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [24, 12.0]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: fc_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: '192000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [280, 16.0]
+    rotation: 0
+    state: enabled
+- name: gain
+  id: variable
+  parameters:
+    comment: ''
+    value: '30'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [360, 16.0]
+    rotation: 0
+    state: enabled
+- name: samp_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: '48000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [192, 16.0]
+    rotation: 0
+    state: enabled
+- name: audio_sink_0
+  id: audio_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    device_name: ''
+    num_inputs: '2'
+    ok_to_block: 'True'
+    samp_rate: samp_rate
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1080, 240.0]
+    rotation: 0
+    state: enabled
+- name: blocks_complex_to_float_0
+  id: blocks_complex_to_float
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [912, 240.0]
+    rotation: 0
+    state: enabled
+- name: blocks_message_debug_0
+  id: blocks_message_debug
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    en_uvec: 'True'
+    log_level: info
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [448, 552.0]
+    rotation: 0
+    state: disabled
+- name: blocks_msgpair_to_var_0
+  id: blocks_msgpair_to_var
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    target: gain
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [184, 552.0]
+    rotation: 0
+    state: enabled
+- name: dc_blocker_xx_0
+  id: dc_blocker_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'Block DC from FunCube
+
+      bypass if not needed'
+    length: '32'
+    long_form: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: cc
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [576, 240.0]
+    rotation: 0
+    state: bypassed
+- name: epy_block_0
+  id: epy_block
+  parameters:
+    _source_code: "\"\"\"\nSimulate Pico functions to set frequency and gain\n\"\"\
+      \"\n\nimport numpy as np\nfrom gnuradio import gr\nimport pmt\n\n\nclass blk(gr.sync_block):\
+      \  # other base classes are basic_block, decim_block, interp_block\n    \"\"\
+      \"\n    reads input from a message port\n    sends set frequency message to\
+      \ FunCube\n    sets gain value\n    \"\"\"\n\n    def __init__(self):\n    \
+      \    gr.sync_block.__init__(self,\n            name='Simulate Pico functions',\
+      \   # will show up in GRC\n            in_sig=None,\n            out_sig=None)\n\
+      \        self.message_port_register_in(pmt.intern('msg_in'))\n        self.message_port_register_out(pmt.intern('set_gain'))\n\
+      \        self.message_port_register_out(pmt.intern('set_freq'))\n        self.set_msg_handler(pmt.intern('msg_in'),\
+      \ self.handle_msg)\n        self._debug = 1     # set to 1 to turn on diagnostics\n\
+      \        if (self._debug):\n            print (\"_debug =\", self._debug)\n\n\
+      \    def handle_msg(self, msg):\n        try:\n            if (pmt.is_pair(msg)):\n\
+      \                key0 = pmt.symbol_to_string(pmt.car(msg))\n               \
+      \ new_val = pmt.to_python(pmt.cdr(msg))\n            else:\n               \
+      \ print (\"Message is not a pair!\")\n                key0 = \"Bad\"\n     \
+      \           new_val = -1\n        except Exception as e:\n            gr.log.error(\"\
+      Error with message conversion: %s\" % str(e))\n        if (self._debug):\n \
+      \           print (\"key:\", key0)\n            print (\"new_val =\", new_val)\n\
+      \        if (key0 == \"freq\"):\n            self.message_port_pub(pmt.intern('set_freq'),\
+      \ msg)\n        elif (key0 == \"gain\"):\n            gain = (int)(new_val)\n\
+      \            self.message_port_pub(pmt.intern('set_gain'),\n               \
+      \ pmt.cons(pmt.intern('gain'),\n                pmt.from_long(gain)))\n    \
+      \    else:\n            print (\"Message key is not valid!\")\n\n\n\n\n"
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    _io_cache: ('Simulate Pico functions', 'blk', [], [('msg_in', 'message', 1)],
+      [('set_freq', 'message', 1), ('set_gain', 'message', 1)], '\n    reads input
+      from a message port\n    sends set frequency message to FunCube\n    sets gain
+      value\n    ', [])
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [184, 456.0]
+    rotation: 180
+    state: enabled
+- name: funcube_fcdpp_0
+  id: funcube_fcdpp
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: 'RF In
+
+      RF Amp
+
+      Mixer
+
+      Differential Amp'
+    device_name: ' ""'
+    freq: 14.25e6
+    if_gain: gain
+    lnaswitch: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    mixergainswitch: '1'
+    ppm: '0'
+    unit: '1 '
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [184, 196.0]
+    rotation: 0
+    state: enabled
+- name: low_pass_filter_0
+  id: low_pass_filter
+  parameters:
+    affinity: ''
+    alias: ''
+    beta: '6.76'
+    comment: 'Placeholder
+
+      bypass if not needed'
+    cutoff_freq: '48000'
+    decim: '1'
+    gain: '1'
+    interp: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_rate: fc_rate
+    type: fir_filter_ccf
+    width: '2000'
+    win: window.WIN_HAMMING
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [400, 196.0]
+    rotation: 0
+    state: bypassed
+- name: rational_resampler_xxx_0
+  id: rational_resampler_xxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    decim: (int)(fc_rate/samp_rate)
+    fbw: '0'
+    interp: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    taps: '[]'
+    type: ccc
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [736, 224.0]
+    rotation: 0
+    state: enabled
+- name: zeromq_sub_msg_source_0
+  id: zeromq_sub_msg_source
+  parameters:
+    address: tcp://127.0.0.1:49204
+    affinity: ''
+    alias: ''
+    bind: 'False'
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    timeout: '100'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [432, 456.0]
+    rotation: 180
+    state: true
+
+connections:
+- [blocks_complex_to_float_0, '0', audio_sink_0, '0']
+- [blocks_complex_to_float_0, '1', audio_sink_0, '1']
+- [dc_blocker_xx_0, '0', rational_resampler_xxx_0, '0']
+- [epy_block_0, set_freq, funcube_fcdpp_0, freq]
+- [epy_block_0, set_gain, blocks_msgpair_to_var_0, inpair]
+- [funcube_fcdpp_0, '0', low_pass_filter_0, '0']
+- [low_pass_filter_0, '0', dc_blocker_xx_0, '0']
+- [rational_resampler_xxx_0, '0', blocks_complex_to_float_0, '0']
+- [zeromq_sub_msg_source_0, out, blocks_message_debug_0, print]
+- [zeromq_sub_msg_source_0, out, epy_block_0, msg_in]
+
+metadata:
+  file_format: 1
+  grc_version: 3.10.9.2

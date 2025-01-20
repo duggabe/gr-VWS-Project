@@ -3,7 +3,7 @@
 This repository is to provide GNU Radio support for the Vienna Wireless Society SDR Project. See the description at [Vienna Wireless Society Software Defined Receiver](https://github.com/KI3P/VWS-SDR/?tab=readme-ov-file#vienna-wireless-society-software-defined-receiver-vws-sdr).
 
 My development plan:
-* Simulate the VWS SDR functionality with GNU Radio using a FunCube Pro Plus and maybe a few other SDRs.
+* Simulate the VWS SDR functionality with GNU Radio using a FunCube Pro Plus.
   - FunCube to audio or ZMQ on Lenovo
   - FunCube to audio or ZMQ on rPi
 * Build a GNU Radio flowgraph for a SSB receiver using the simulation above.
@@ -69,10 +69,9 @@ The package uses two separate processes: (a) the VWS_SDR Simulation and (b) a SS
 cd ~/gr-VWS-Project
 ```
 3. Execute the VWS_SDR Simulation
-```
-python3 -u VWS_SDR_sim_1.py
-```
-4. A new window will open showing various controls and a waterfall display. To terminate that window, click the "X" in the upper right corner.
+    `python3 -u VWS_SDR_sim_3.py`    for a ZMQ interface  
+    `python3 -u VWS_SDR_sim_4.py`    for an audio interface  
+4. There is no GUI, but informational messages will be given during the program startup and operation.
 
 ### SSB Receiver
 
@@ -81,14 +80,15 @@ python3 -u VWS_SDR_sim_1.py
 ```
 cd ~/gr-VWS-Project
 ```
-3. Execute the receiver of your choice.  
-    `python3 -u SSB_rcv_1.py`    for a ZMQ interface  
-    `python3 -u SSB_rcv_2.py`    for an audio interface  
-4. A new window will open showing various controls. To terminate that window, click the "X" in the upper right corner.
+3. Execute the receiver for the interface chosen above.  
+    `python3 -u SSB_rcv_3.py`    for a ZMQ interface  
+    `python3 -u SSB_rcv_4.py`    for an audio interface  
+4. A new window will open showing various controls and a waterfall display. To terminate that window, click the "X" in the upper right corner.
 
 ## Testing
 
-TBD
+Tests have been done with simulated input as well as over the air signals. Links have been tested with ZMQ and with audio cables. By using receivers from https://github.com/duggabe/gr-control/tree/main/Receivers, reception of NBFM and broadcast WBFM stereo have been tested as well.
+
 
 
 
