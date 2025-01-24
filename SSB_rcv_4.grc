@@ -366,6 +366,23 @@ blocks:
     coordinate: [504, 352.0]
     rotation: 0
     state: enabled
+- name: note_0
+  id: note
+  parameters:
+    alias: ''
+    comment: 'See instructions in the distro
+
+      Operation section for
+
+      setting the ZMQ Addresses'
+    note: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [152, 480.0]
+    rotation: 0
+    state: enabled
 - name: qtgui_edit_box_msg_0
   id: qtgui_edit_box_msg
   parameters:
@@ -380,7 +397,7 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     type: string
-    value: '"30"'
+    value: '"28"'
   states:
     bus_sink: false
     bus_source: false

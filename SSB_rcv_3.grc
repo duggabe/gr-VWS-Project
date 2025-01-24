@@ -125,7 +125,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '192000'
+    value: '768000'
   states:
     bus_sink: false
     bus_source: false
@@ -343,6 +343,23 @@ blocks:
     coordinate: [504, 352.0]
     rotation: 0
     state: enabled
+- name: note_0
+  id: note
+  parameters:
+    alias: ''
+    comment: 'See instructions in the distro
+
+      Operation section for
+
+      setting the ZMQ Addresses'
+    note: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [96, 488.0]
+    rotation: 0
+    state: enabled
 - name: qtgui_edit_box_msg_0
   id: qtgui_edit_box_msg
   parameters:
@@ -357,12 +374,12 @@ blocks:
     maxoutbuf: '0'
     minoutbuf: '0'
     type: string
-    value: '"30"'
+    value: '"28"'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [104, 824.0]
+    coordinate: [96, 696.0]
     rotation: 0
     state: enabled
 - name: qtgui_freq_sink_x_0
@@ -540,7 +557,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [104, 736.0]
+    coordinate: [96, 608.0]
     rotation: 180
     state: enabled
 - name: zeromq_sub_source_0
@@ -550,7 +567,7 @@ blocks:
     affinity: ''
     alias: ''
     bind: 'False'
-    comment: 'FunCube rate = 192kHz
+    comment: 'FunCube rate = 768kHz
 
       from VWS_SDR_sim_3'
     hwm: '-1'

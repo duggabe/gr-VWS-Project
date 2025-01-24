@@ -49,41 +49,71 @@ git clone https://github.com/duggabe/gr-VWS-Project.git
   sudo udevadm control --reload-rules  
   sudo udevadm trigger  
 
-After I built gr-funcube, I was getting an error from `import funcube` until I added this to my `.bash_aliases` file:
+Once gr-funcube is built, `gnuradio` needs to find it so you don't get an error about "failure to import funcube". So, do the following steps.
+
+6. In a terminal screen enter  
+```
+find {your-prefix} -name gnuradio | grep "packages"  
+find {your-prefix} -name funcube | grep "packages"  
+```
+7. Continue by following [ModuleNotFoundError#C._Setting_PYTHONPATH](https://wiki.gnuradio.org/index.php/ModuleNotFoundError#C%2E_Setting_PYTHONPATH)
+
+For Ubuntu 24.04.1 and GNU Radio v3.10.9.2 I added this to my `.bash_aliases` file:
 ```
 export PYTHONPATH=/usr/lib/python3/dist-packages:/usr/lib/python3.12/site-packages:$PYTHONPATH
 export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
 ```
 
-For further explanation, see [ModuleNotFoundError](https://wiki.gnuradio.org/index.php/ModuleNotFoundError).
+8. On your terminal enter `exit`. Then start a new terminal.
 
 ## Operation
 **NOTES:**  
-The package uses two separate processes: (a) the VWS_SDR Simulation and (b) a SSB Receiver. These run in two terminal windows (or tabs).
+The package uses two separate processes: (a) the VWS_SDR Simulation and (b) a SSB Receiver. These run in two separate terminal windows (or tabs).
 
 ### VWS_SDR Simulation
 
-1. Open a terminal window.
+1. Open a terminal window on the computer where the VWS_SDR Simulation will be executed.
 2. Go to the gr-VWS-Project folder.  
 ```
 cd ~/gr-VWS-Project
 ```
-3. Execute the VWS_SDR Simulation
-    `python3 -u VWS_SDR_sim_3.py`    for a ZMQ interface  
-    `python3 -u VWS_SDR_sim_4.py`    for an audio interface  
-4. There is no GUI, but informational messages will be given during the program startup and operation.
+3. Execute `gnuradio-companion`.  
+```
+gnuradio-companion
+```
+4. Open the `VWS_SDR_sim_4.grc` flowgraph.
+5. If `VWS_SDR_sim_4` is not to run on the same computer as the SSB receiver, change the `ZMQ SUB Message Source` address to the IP address of the computer running the SSB Receiver; for example: `tcp://192.168.1.194:49204`
+6. Click 'Generate the flowgraph' or press F5.
+7. Exit `gnuradio-companion` by clicking the "X" in the upper right corner of the screen.
+8. On the same terminal screen, execute the VWS_SDR Simulation  
+```
+python3 -u VWS_SDR_sim_4.py
+```
+9. There is no GUI, but informational messages will be given during the program startup and operation. To terminate the program, press the "Enter" key.
+10. Note: For subsequent executions of the program, if there are no changes to the flowgraph, you can skip steps 3 through 7.
 
 ### SSB Receiver
 
-1. Open a second terminal window.
+1. Open a second terminal window on the computer where the SSB Receiver will be executed.
 2. Go to the gr-VWS-Project folder.  
 ```
 cd ~/gr-VWS-Project
 ```
-3. Execute the receiver for the interface chosen above.  
-    `python3 -u SSB_rcv_3.py`    for a ZMQ interface  
-    `python3 -u SSB_rcv_4.py`    for an audio interface  
-4. A new window will open showing various controls and a waterfall display. To terminate that window, click the "X" in the upper right corner.
+3. Execute `gnuradio-companion`.  
+```
+gnuradio-companion
+```
+4. Open the `SSB_rcv_4.grc` flowgraph.
+5. If `SSB_rcv_4` is not to run on the same computer as the VWS_SDR Simulation, change the `ZMQ PUB Message Sink` address to the IP address of the computer running the SSB Receiver; for example: `tcp://192.168.1.194:49204`
+6. Click 'Generate the flowgraph' or press F5.
+7. Exit `gnuradio-companion` by clicking the "X" in the upper right corner of the screen.
+8. On the same terminal screen, execute the VWS_SDR Simulation  
+```
+python3 -u SSB_rcv_4.py
+```
+9. A new window will open showing various controls, a waterfall display, and a Frequency display. The frequency can be changed by clicking on the digits, where clicking on the uppper part of the digit increases the value, and clicking on the lower part of the digit decreases the value.
+10. To terminate that window, click the "X" in the upper right corner.
+11. Note: For subsequent executions of the program, if there are no changes to the flowgraph, you can skip steps 3 through 7.
 
 ## Testing
 

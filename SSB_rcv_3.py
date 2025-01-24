@@ -69,7 +69,7 @@ class SSB_rcv_3(gr.top_block, Qt.QWidget):
         # Variables
         ##################################################
         self.volume = volume = 0.7
-        self.usrp_rate = usrp_rate = 192000
+        self.usrp_rate = usrp_rate = 768000
         self.samp_rate = samp_rate = 48000
         self.reverse = reverse = -1
         self.qtgui_msgdigitalnumbercontrol_0 = qtgui_msgdigitalnumbercontrol_0 = 14.250e6
@@ -224,7 +224,7 @@ class SSB_rcv_3(gr.top_block, Qt.QWidget):
             self.top_grid_layout.setRowStretch(r, 1)
         for c in range(0, 3):
             self.top_grid_layout.setColumnStretch(c, 1)
-        self.qtgui_edit_box_msg_0 = qtgui.edit_box_msg(qtgui.STRING, "30", "RF Gain", True, True, "gain", None)
+        self.qtgui_edit_box_msg_0 = qtgui.edit_box_msg(qtgui.STRING, "28", "RF Gain", True, True, "gain", None)
         self._qtgui_edit_box_msg_0_win = sip.wrapinstance(self.qtgui_edit_box_msg_0.qwidget(), Qt.QWidget)
         self.top_grid_layout.addWidget(self._qtgui_edit_box_msg_0_win, 3, 0, 1, 1)
         for r in range(3, 4):

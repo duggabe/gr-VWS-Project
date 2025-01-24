@@ -49,7 +49,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '30'
+    value: '28'
   states:
     bus_sink: false
     bus_source: false
@@ -81,8 +81,8 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [448, 552.0]
-    rotation: 0
+    coordinate: [144, 624.0]
+    rotation: 180
     state: disabled
 - name: blocks_msgpair_to_var_0
   id: blocks_msgpair_to_var
@@ -128,7 +128,7 @@ blocks:
       \   # will show up in GRC\n            in_sig=None,\n            out_sig=None)\n\
       \        self.message_port_register_in(pmt.intern('msg_in'))\n        self.message_port_register_out(pmt.intern('set_gain'))\n\
       \        self.message_port_register_out(pmt.intern('set_freq'))\n        self.set_msg_handler(pmt.intern('msg_in'),\
-      \ self.handle_msg)\n        self._debug = 1     # set to 1 to turn on diagnostics\n\
+      \ self.handle_msg)\n        self._debug = 0     # set to 1 to turn on diagnostics\n\
       \        if (self._debug):\n            print (\"_debug =\", self._debug)\n\n\
       \    def handle_msg(self, msg):\n        try:\n            if (pmt.is_pair(msg)):\n\
       \                key0 = pmt.symbol_to_string(pmt.car(msg))\n               \
@@ -139,9 +139,10 @@ blocks:
       \           print (\"key:\", key0)\n            print (\"new_val =\", new_val)\n\
       \        if (key0 == \"freq\"):\n            self.message_port_pub(pmt.intern('set_freq'),\
       \ msg)\n        elif (key0 == \"gain\"):\n            gain = (int)(new_val)\n\
-      \            self.message_port_pub(pmt.intern('set_gain'),\n               \
-      \ pmt.cons(pmt.intern('gain'),\n                pmt.from_long(gain)))\n    \
-      \    else:\n            print (\"Message key is not valid!\")\n\n\n\n\n"
+      \            if (gain > 28):\n                gain = 28\n                print\
+      \ (\"Max gain is 28.\")\n            self.message_port_pub(pmt.intern('set_gain'),\n\
+      \                pmt.cons(pmt.intern('gain'),\n                pmt.from_long(gain)))\n\
+      \        else:\n            print (\"Message key is not valid!\")\n\n\n\n\n"
     affinity: ''
     alias: ''
     comment: ''
@@ -210,6 +211,23 @@ blocks:
     coordinate: [400, 196.0]
     rotation: 0
     state: bypassed
+- name: note_0
+  id: note
+  parameters:
+    alias: ''
+    comment: 'See instructions in the distro
+
+      Operation section for
+
+      setting the ZMQ Addresses'
+    note: ''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [456, 16.0]
+    rotation: 0
+    state: enabled
 - name: zeromq_pub_sink_0
   id: zeromq_pub_sink
   parameters:
@@ -217,7 +235,13 @@ blocks:
     affinity: ''
     alias: ''
     bind: 'True'
-    comment: FunCube rate = 192kHz
+    comment: 'FunCube rate = 192kHz
+
+      See instructions in the distro
+
+      Operation section for
+
+      setting the ZMQ Address'
     drop_on_hwm: 'True'
     hwm: '-1'
     key: ''
@@ -239,7 +263,11 @@ blocks:
     affinity: ''
     alias: ''
     bind: 'False'
-    comment: ''
+    comment: 'See instructions in the distro
+
+      Operation section for
+
+      setting the ZMQ Address'
     maxoutbuf: '0'
     minoutbuf: '0'
     timeout: '100'

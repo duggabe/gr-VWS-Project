@@ -37,7 +37,7 @@ class VWS_SDR_sim_3(gr.top_block):
         # Variables
         ##################################################
         self.samp_rate = samp_rate = 48000
-        self.gain = gain = 30
+        self.gain = gain = 28
         self.fc_rate = fc_rate = 192000
 
         ##################################################
