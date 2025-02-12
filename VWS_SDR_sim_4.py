@@ -38,7 +38,7 @@ class VWS_SDR_sim_4(gr.top_block):
         # Variables
         ##################################################
         self.samp_rate = samp_rate = 48000
-        self.gain = gain = 28
+        self.gain = gain = 6
         self.fc_rate = fc_rate = 192000
 
         ##################################################
@@ -46,11 +46,6 @@ class VWS_SDR_sim_4(gr.top_block):
         ##################################################
 
         self.zeromq_sub_msg_source_0 = zeromq.sub_msg_source('tcp://127.0.0.1:49204', 100, False)
-        self.rational_resampler_xxx_0 = filter.rational_resampler_ccc(
-                interpolation=1,
-                decimation=((int)(fc_rate/samp_rate)),
-                taps=[],
-                fractional_bw=0)
         self.funcube_fcdpp_0 = funcube.fcdpp( "", 1 )
 
         self.funcube_fcdpp_0.set_lna(1)
@@ -61,6 +56,16 @@ class VWS_SDR_sim_4(gr.top_block):
         self.epy_block_0 = epy_block_0.blk()
         self.blocks_msgpair_to_var_0 = blocks.msg_pair_to_var(self.set_gain)
         self.blocks_complex_to_float_0 = blocks.complex_to_float(1)
+        self.band_pass_filter_0 = filter.fir_filter_ccf(
+            ((int)(fc_rate/samp_rate)),
+            firdes.band_pass(
+                1,
+                fc_rate,
+                200,
+                48000,
+                200,
+                window.WIN_HAMMING,
+                6.76))
         self.audio_sink_0 = audio.sink(samp_rate, '', True)
 
 
@@ -70,10 +75,10 @@ class VWS_SDR_sim_4(gr.top_block):
         self.msg_connect((self.epy_block_0, 'set_gain'), (self.blocks_msgpair_to_var_0, 'inpair'))
         self.msg_connect((self.epy_block_0, 'set_freq'), (self.funcube_fcdpp_0, 'freq'))
         self.msg_connect((self.zeromq_sub_msg_source_0, 'out'), (self.epy_block_0, 'msg_in'))
-        self.connect((self.blocks_complex_to_float_0, 1), (self.audio_sink_0, 1))
+        self.connect((self.band_pass_filter_0, 0), (self.blocks_complex_to_float_0, 0))
         self.connect((self.blocks_complex_to_float_0, 0), (self.audio_sink_0, 0))
-        self.connect((self.funcube_fcdpp_0, 0), (self.rational_resampler_xxx_0, 0))
-        self.connect((self.rational_resampler_xxx_0, 0), (self.blocks_complex_to_float_0, 0))
+        self.connect((self.blocks_complex_to_float_0, 1), (self.audio_sink_0, 1))
+        self.connect((self.funcube_fcdpp_0, 0), (self.band_pass_filter_0, 0))
 
 
     def get_samp_rate(self):
@@ -94,7 +99,7 @@ class VWS_SDR_sim_4(gr.top_block):
 
     def set_fc_rate(self, fc_rate):
         self.fc_rate = fc_rate
-        self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.fc_rate, 48000, 2000, window.WIN_HAMMING, 6.76))
+        self.band_pass_filter_0.set_taps(firdes.band_pass(1, self.fc_rate, 200, 48000, 200, window.WIN_HAMMING, 6.76))
 
 
 

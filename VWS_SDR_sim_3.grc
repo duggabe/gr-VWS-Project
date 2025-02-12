@@ -42,19 +42,19 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [288, 16.0]
+    coordinate: [184, 16.0]
     rotation: 0
     state: enabled
 - name: gain
   id: variable
   parameters:
     comment: ''
-    value: '28'
+    value: '6'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [376, 16.0]
+    coordinate: [272, 16.0]
     rotation: 0
     state: enabled
 - name: samp_rate
@@ -66,7 +66,32 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [192, 16.0]
+    coordinate: [184, 88.0]
+    rotation: 0
+    state: enabled
+- name: band_pass_filter_0
+  id: band_pass_filter
+  parameters:
+    affinity: ''
+    alias: ''
+    beta: '6.76'
+    comment: ''
+    decim: (int)(fc_rate/samp_rate)
+    gain: '1'
+    high_cutoff_freq: '48000'
+    interp: '1'
+    low_cutoff_freq: '200'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_rate: fc_rate
+    type: fir_filter_ccf
+    width: '200'
+    win: window.WIN_HAMMING
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [400, 188.0]
     rotation: 0
     state: enabled
 - name: blocks_message_debug_0
@@ -98,24 +123,6 @@ blocks:
     coordinate: [184, 552.0]
     rotation: 0
     state: enabled
-- name: dc_blocker_xx_0
-  id: dc_blocker_xx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: "Bypass if not needed \nto block DC from FunCube"
-    length: '32'
-    long_form: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    type: cc
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [576, 240.0]
-    rotation: 0
-    state: bypassed
 - name: epy_block_0
   id: epy_block
   parameters:
@@ -139,8 +146,8 @@ blocks:
       \           print (\"key:\", key0)\n            print (\"new_val =\", new_val)\n\
       \        if (key0 == \"freq\"):\n            self.message_port_pub(pmt.intern('set_freq'),\
       \ msg)\n        elif (key0 == \"gain\"):\n            gain = (int)(new_val)\n\
-      \            if (gain > 28):\n                gain = 28\n                print\
-      \ (\"Max gain is 28.\")\n            self.message_port_pub(pmt.intern('set_gain'),\n\
+      \            if (gain > 79):\n                gain = 79\n                print\
+      \ (\"Max gain is 79.\")\n            self.message_port_pub(pmt.intern('set_gain'),\n\
       \                pmt.cons(pmt.intern('gain'),\n                pmt.from_long(gain)))\n\
       \        else:\n            print (\"Message key is not valid!\")\n\n\n\n\n"
     affinity: ''
@@ -187,30 +194,6 @@ blocks:
     coordinate: [184, 196.0]
     rotation: 0
     state: enabled
-- name: low_pass_filter_0
-  id: low_pass_filter
-  parameters:
-    affinity: ''
-    alias: ''
-    beta: '6.76'
-    comment: Bypass if not needed
-    cutoff_freq: '20000'
-    decim: '1'
-    gain: '1'
-    interp: '1'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    samp_rate: fc_rate
-    type: fir_filter_ccf
-    width: '2000'
-    win: window.WIN_HAMMING
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [400, 196.0]
-    rotation: 0
-    state: bypassed
 - name: note_0
   id: note
   parameters:
@@ -225,7 +208,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [456, 16.0]
+    coordinate: [352, 16.0]
     rotation: 0
     state: enabled
 - name: zeromq_pub_sink_0
@@ -235,7 +218,7 @@ blocks:
     affinity: ''
     alias: ''
     bind: 'True'
-    comment: 'FunCube rate = 192kHz
+    comment: 'Audio rate = 48kHz
 
       See instructions in the distro
 
@@ -253,7 +236,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [768, 216.0]
+    coordinate: [584, 216.0]
     rotation: 0
     state: true
 - name: zeromq_sub_msg_source_0
@@ -280,11 +263,10 @@ blocks:
     state: true
 
 connections:
-- [dc_blocker_xx_0, '0', zeromq_pub_sink_0, '0']
+- [band_pass_filter_0, '0', zeromq_pub_sink_0, '0']
 - [epy_block_0, set_freq, funcube_fcdpp_0, freq]
 - [epy_block_0, set_gain, blocks_msgpair_to_var_0, inpair]
-- [funcube_fcdpp_0, '0', low_pass_filter_0, '0']
-- [low_pass_filter_0, '0', dc_blocker_xx_0, '0']
+- [funcube_fcdpp_0, '0', band_pass_filter_0, '0']
 - [zeromq_sub_msg_source_0, out, blocks_message_debug_0, print]
 - [zeromq_sub_msg_source_0, out, epy_block_0, msg_in]
 

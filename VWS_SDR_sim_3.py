@@ -37,7 +37,7 @@ class VWS_SDR_sim_3(gr.top_block):
         # Variables
         ##################################################
         self.samp_rate = samp_rate = 48000
-        self.gain = gain = 28
+        self.gain = gain = 6
         self.fc_rate = fc_rate = 192000
 
         ##################################################
@@ -55,6 +55,16 @@ class VWS_SDR_sim_3(gr.top_block):
         self.funcube_fcdpp_0.set_freq(14.25e6)
         self.epy_block_0 = epy_block_0.blk()
         self.blocks_msgpair_to_var_0 = blocks.msg_pair_to_var(self.set_gain)
+        self.band_pass_filter_0 = filter.fir_filter_ccf(
+            ((int)(fc_rate/samp_rate)),
+            firdes.band_pass(
+                1,
+                fc_rate,
+                200,
+                48000,
+                200,
+                window.WIN_HAMMING,
+                6.76))
 
 
         ##################################################
@@ -63,7 +73,8 @@ class VWS_SDR_sim_3(gr.top_block):
         self.msg_connect((self.epy_block_0, 'set_gain'), (self.blocks_msgpair_to_var_0, 'inpair'))
         self.msg_connect((self.epy_block_0, 'set_freq'), (self.funcube_fcdpp_0, 'freq'))
         self.msg_connect((self.zeromq_sub_msg_source_0, 'out'), (self.epy_block_0, 'msg_in'))
-        self.connect((self.funcube_fcdpp_0, 0), (self.zeromq_pub_sink_0, 0))
+        self.connect((self.band_pass_filter_0, 0), (self.zeromq_pub_sink_0, 0))
+        self.connect((self.funcube_fcdpp_0, 0), (self.band_pass_filter_0, 0))
 
 
     def get_samp_rate(self):
@@ -84,7 +95,7 @@ class VWS_SDR_sim_3(gr.top_block):
 
     def set_fc_rate(self, fc_rate):
         self.fc_rate = fc_rate
-        self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.fc_rate, 20000, 2000, window.WIN_HAMMING, 6.76))
+        self.band_pass_filter_0.set_taps(firdes.band_pass(1, self.fc_rate, 200, 48000, 200, window.WIN_HAMMING, 6.76))
 
 
 

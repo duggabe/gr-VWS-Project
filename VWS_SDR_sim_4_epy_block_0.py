@@ -45,9 +45,9 @@ class blk(gr.sync_block):  # other base classes are basic_block, decim_block, in
             self.message_port_pub(pmt.intern('set_freq'), msg)
         elif (key0 == "gain"):
             gain = (int)(new_val)
-            if (gain > 28):
-                gain = 28
-                print ("Max gain is 28.")
+            if (gain > 79):
+                gain = 79
+                print ("Max gain is 79.")
             self.message_port_pub(pmt.intern('set_gain'),
                 pmt.cons(pmt.intern('gain'),
                 pmt.from_long(gain)))

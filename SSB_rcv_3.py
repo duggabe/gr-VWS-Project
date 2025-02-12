@@ -69,9 +69,8 @@ class SSB_rcv_3(gr.top_block, Qt.QWidget):
         # Variables
         ##################################################
         self.volume = volume = 0.7
-        self.usrp_rate = usrp_rate = 768000
+        self.sb_sel = sb_sel = 0
         self.samp_rate = samp_rate = 48000
-        self.reverse = reverse = -1
         self.qtgui_msgdigitalnumbercontrol_0 = qtgui_msgdigitalnumbercontrol_0 = 14.250e6
         self.bfo = bfo = 1500
 
@@ -87,33 +86,33 @@ class SSB_rcv_3(gr.top_block, Qt.QWidget):
         for c in range(0, 3):
             self.top_grid_layout.setColumnStretch(c, 1)
         # Create the options list
-        self._reverse_options = [-1, 1, 0]
+        self._sb_sel_options = [0, 1]
         # Create the labels list
-        self._reverse_labels = ['Upper', 'Lower', 'BFO']
+        self._sb_sel_labels = ['Upper', 'Lower']
         # Create the combo box
         # Create the radio buttons
-        self._reverse_group_box = Qt.QGroupBox("Sideband" + ": ")
-        self._reverse_box = Qt.QHBoxLayout()
+        self._sb_sel_group_box = Qt.QGroupBox("Sideband" + ": ")
+        self._sb_sel_box = Qt.QVBoxLayout()
         class variable_chooser_button_group(Qt.QButtonGroup):
             def __init__(self, parent=None):
                 Qt.QButtonGroup.__init__(self, parent)
             @pyqtSlot(int)
             def updateButtonChecked(self, button_id):
                 self.button(button_id).setChecked(True)
-        self._reverse_button_group = variable_chooser_button_group()
-        self._reverse_group_box.setLayout(self._reverse_box)
-        for i, _label in enumerate(self._reverse_labels):
+        self._sb_sel_button_group = variable_chooser_button_group()
+        self._sb_sel_group_box.setLayout(self._sb_sel_box)
+        for i, _label in enumerate(self._sb_sel_labels):
             radio_button = Qt.QRadioButton(_label)
-            self._reverse_box.addWidget(radio_button)
-            self._reverse_button_group.addButton(radio_button, i)
-        self._reverse_callback = lambda i: Qt.QMetaObject.invokeMethod(self._reverse_button_group, "updateButtonChecked", Qt.Q_ARG("int", self._reverse_options.index(i)))
-        self._reverse_callback(self.reverse)
-        self._reverse_button_group.buttonClicked[int].connect(
-            lambda i: self.set_reverse(self._reverse_options[i]))
-        self.top_grid_layout.addWidget(self._reverse_group_box, 3, 2, 1, 1)
-        for r in range(3, 4):
+            self._sb_sel_box.addWidget(radio_button)
+            self._sb_sel_button_group.addButton(radio_button, i)
+        self._sb_sel_callback = lambda i: Qt.QMetaObject.invokeMethod(self._sb_sel_button_group, "updateButtonChecked", Qt.Q_ARG("int", self._sb_sel_options.index(i)))
+        self._sb_sel_callback(self.sb_sel)
+        self._sb_sel_button_group.buttonClicked[int].connect(
+            lambda i: self.set_sb_sel(self._sb_sel_options[i]))
+        self.top_grid_layout.addWidget(self._sb_sel_group_box, 1, 0, 1, 1)
+        for r in range(1, 2):
             self.top_grid_layout.setRowStretch(r, 1)
-        for c in range(2, 3):
+        for c in range(0, 1):
             self.top_grid_layout.setColumnStretch(c, 1)
         self._bfo_range = qtgui.Range(0, 3000, 10, 1500, 200)
         self._bfo_win = qtgui.RangeWidget(self._bfo_range, self.set_bfo, "Fine tuning", "counter_slider", float, QtCore.Qt.Horizontal)
@@ -124,16 +123,11 @@ class SSB_rcv_3(gr.top_block, Qt.QWidget):
             self.top_grid_layout.setColumnStretch(c, 1)
         self.zeromq_sub_source_0 = zeromq.sub_source(gr.sizeof_gr_complex, 1, 'tcp://127.0.0.1:49201', 100, False, (-1), '', False)
         self.zeromq_pub_msg_sink_0 = zeromq.pub_msg_sink('tcp://127.0.0.1:49204', 100, True)
-        self.rational_resampler_xxx_0 = filter.rational_resampler_ccc(
-                interpolation=1,
-                decimation=((int)(usrp_rate/samp_rate)),
-                taps=[],
-                fractional_bw=0)
         self.qtgui_waterfall_sink_x_0 = qtgui.waterfall_sink_c(
             1024, #size
             window.WIN_BLACKMAN_hARRIS, #wintype
             14.25e6, #fc
-            usrp_rate, #bw
+            samp_rate, #bw
             "", #name
             1, #number of inputs
             None # parent
@@ -182,7 +176,7 @@ class SSB_rcv_3(gr.top_block, Qt.QWidget):
             1024, #size
             window.WIN_BLACKMAN_hARRIS, #wintype
             0, #fc
-            usrp_rate, #bw
+            samp_rate, #bw
             "", #name
             1,
             None # parent
@@ -224,17 +218,27 @@ class SSB_rcv_3(gr.top_block, Qt.QWidget):
             self.top_grid_layout.setRowStretch(r, 1)
         for c in range(0, 3):
             self.top_grid_layout.setColumnStretch(c, 1)
-        self.qtgui_edit_box_msg_0 = qtgui.edit_box_msg(qtgui.STRING, "28", "RF Gain", True, True, "gain", None)
+        self.qtgui_edit_box_msg_0_0 = qtgui.edit_box_msg(qtgui.FLOAT, '14.25e6', 'Quick Set Frequency', True, True, 'freq', None)
+        self._qtgui_edit_box_msg_0_0_win = sip.wrapinstance(self.qtgui_edit_box_msg_0_0.qwidget(), Qt.QWidget)
+        self.top_grid_layout.addWidget(self._qtgui_edit_box_msg_0_0_win, 9, 0, 1, 1)
+        for r in range(9, 10):
+            self.top_grid_layout.setRowStretch(r, 1)
+        for c in range(0, 1):
+            self.top_grid_layout.setColumnStretch(c, 1)
+        self.qtgui_edit_box_msg_0 = qtgui.edit_box_msg(qtgui.INT, '6', "RF Gain", True, True, "gain", None)
         self._qtgui_edit_box_msg_0_win = sip.wrapinstance(self.qtgui_edit_box_msg_0.qwidget(), Qt.QWidget)
         self.top_grid_layout.addWidget(self._qtgui_edit_box_msg_0_win, 3, 0, 1, 1)
         for r in range(3, 4):
             self.top_grid_layout.setRowStretch(r, 1)
         for c in range(0, 1):
             self.top_grid_layout.setColumnStretch(c, 1)
-        self.freq_xlating_fir_filter_xxx_0 = filter.freq_xlating_fir_filter_ccc(1, firdes.complex_band_pass(1, samp_rate, -samp_rate/2, samp_rate/2, 200), 1500, samp_rate)
+        self.freq_xlating_fir_filter_xxx_0 = filter.freq_xlating_fir_filter_ccf(1, firdes.low_pass(1,samp_rate,samp_rate/2, 1500), 1500, samp_rate)
+        self.blocks_swapiq_0 = blocks.swap_iq(1, gr.sizeof_gr_complex)
+        self.blocks_selector_0 = blocks.selector(gr.sizeof_gr_complex*1,sb_sel,0)
+        self.blocks_selector_0.set_enabled(True)
         self.blocks_multiply_xx_0_0 = blocks.multiply_vff(1)
         self.blocks_multiply_xx_0 = blocks.multiply_vff(1)
-        self.blocks_multiply_const_vxx_0_0 = blocks.multiply_const_ff(reverse)
+        self.blocks_multiply_const_vxx_0_0 = blocks.multiply_const_ff((-1))
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff(volume)
         self.blocks_complex_to_float_0 = blocks.complex_to_float(1)
         self.blocks_add_xx_0 = blocks.add_vff(1)
@@ -247,6 +251,7 @@ class SSB_rcv_3(gr.top_block, Qt.QWidget):
         # Connections
         ##################################################
         self.msg_connect((self.qtgui_edit_box_msg_0, 'msg'), (self.zeromq_pub_msg_sink_0, 'in'))
+        self.msg_connect((self.qtgui_edit_box_msg_0_0, 'msg'), (self.qtgui_msgdigitalnumbercontrol_0, 'valuein'))
         self.msg_connect((self.qtgui_msgdigitalnumbercontrol_0, 'valueout'), (self.qtgui_waterfall_sink_x_0, 'freq'))
         self.msg_connect((self.qtgui_msgdigitalnumbercontrol_0, 'valueout'), (self.zeromq_pub_msg_sink_0, 'in'))
         self.msg_connect((self.qtgui_waterfall_sink_x_0, 'freq'), (self.qtgui_msgdigitalnumbercontrol_0, 'valuein'))
@@ -259,11 +264,13 @@ class SSB_rcv_3(gr.top_block, Qt.QWidget):
         self.connect((self.blocks_multiply_const_vxx_0_0, 0), (self.blocks_add_xx_0, 1))
         self.connect((self.blocks_multiply_xx_0, 0), (self.blocks_add_xx_0, 0))
         self.connect((self.blocks_multiply_xx_0_0, 0), (self.blocks_multiply_const_vxx_0_0, 0))
+        self.connect((self.blocks_selector_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
+        self.connect((self.blocks_swapiq_0, 0), (self.blocks_selector_0, 1))
         self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.blocks_complex_to_float_0, 0))
-        self.connect((self.rational_resampler_xxx_0, 0), (self.freq_xlating_fir_filter_xxx_0, 0))
-        self.connect((self.zeromq_sub_source_0, 0), (self.qtgui_freq_sink_x_0, 0))
+        self.connect((self.freq_xlating_fir_filter_xxx_0, 0), (self.qtgui_freq_sink_x_0, 0))
+        self.connect((self.zeromq_sub_source_0, 0), (self.blocks_selector_0, 0))
+        self.connect((self.zeromq_sub_source_0, 0), (self.blocks_swapiq_0, 0))
         self.connect((self.zeromq_sub_source_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
-        self.connect((self.zeromq_sub_source_0, 0), (self.rational_resampler_xxx_0, 0))
 
 
     def closeEvent(self, event):
@@ -281,13 +288,13 @@ class SSB_rcv_3(gr.top_block, Qt.QWidget):
         self.volume = volume
         self.blocks_multiply_const_vxx_0.set_k(self.volume)
 
-    def get_usrp_rate(self):
-        return self.usrp_rate
+    def get_sb_sel(self):
+        return self.sb_sel
 
-    def set_usrp_rate(self, usrp_rate):
-        self.usrp_rate = usrp_rate
-        self.qtgui_freq_sink_x_0.set_frequency_range(0, self.usrp_rate)
-        self.qtgui_waterfall_sink_x_0.set_frequency_range(14.25e6, self.usrp_rate)
+    def set_sb_sel(self, sb_sel):
+        self.sb_sel = sb_sel
+        self._sb_sel_callback(self.sb_sel)
+        self.blocks_selector_0.set_input_index(self.sb_sel)
 
     def get_samp_rate(self):
         return self.samp_rate
@@ -296,15 +303,9 @@ class SSB_rcv_3(gr.top_block, Qt.QWidget):
         self.samp_rate = samp_rate
         self.analog_sig_source_x_0.set_sampling_freq(self.samp_rate)
         self.analog_sig_source_x_0_0.set_sampling_freq(self.samp_rate)
-        self.freq_xlating_fir_filter_xxx_0.set_taps(firdes.complex_band_pass(1, self.samp_rate, -self.samp_rate/2, self.samp_rate/2, 200))
-
-    def get_reverse(self):
-        return self.reverse
-
-    def set_reverse(self, reverse):
-        self.reverse = reverse
-        self._reverse_callback(self.reverse)
-        self.blocks_multiply_const_vxx_0_0.set_k(self.reverse)
+        self.freq_xlating_fir_filter_xxx_0.set_taps(firdes.low_pass(1,self.samp_rate,self.samp_rate/2, 1500))
+        self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
+        self.qtgui_waterfall_sink_x_0.set_frequency_range(14.25e6, self.samp_rate)
 
     def get_qtgui_msgdigitalnumbercontrol_0(self):
         return self.qtgui_msgdigitalnumbercontrol_0
