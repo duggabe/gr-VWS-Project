@@ -82,6 +82,7 @@ SSB_rcv_2 - original testing with GUI, audio in
 SSB_rcv_3 - full GNU Radio SSB receiver with GUI, ZMQ in, Weaver method
 SSB_rcv_4 - full GNU Radio SSB receiver with GUI, audio in, Weaver method
 SSB_rcv_5 - full GNU Radio SSB receiver with GUI, ZMQ in, filter method
+SSB_rcv_6 - full GNU Radio SSB receiver with GUI, audio in, filter method
 ```
 
 ## Operation
@@ -121,13 +122,13 @@ cd ~/gr-VWS-Project
 ```
 gnuradio-companion
 ```
-4. Open the `SSB_rcv_4.grc` flowgraph.
-5. If `SSB_rcv_4` is not to run on the same computer as the VWS_SDR Simulation, change the `ZMQ PUB Message Sink` address to the IP address of the computer running the SSB Receiver; for example: `tcp://192.168.1.194:49204`
+4. Open the `SSB_rcv_6.grc` flowgraph.
+5. If `SSB_rcv_6` is not to run on the same computer as the VWS_SDR Simulation, change the `ZMQ PUB Message Sink` address to the IP address of the computer running the SSB Receiver; for example: `tcp://192.168.1.194:49204`
 6. Click 'Generate the flowgraph' or press F5.
 7. Exit `gnuradio-companion` by clicking the "X" in the upper right corner of the screen.
-8. On the same terminal screen, execute the SSB_rcv_4 flowgraph. 
+8. On the same terminal screen, execute the SSB_rcv_6 flowgraph. 
 ```
-python3 -u SSB_rcv_4.py
+python3 -u SSB_rcv_6.py
 ```
 9. A new window will open showing various controls, a waterfall display, and a Frequency display. The receive frequency can be changed in three ways: (a) by clicking on the digits, where clicking on the uppper part of the digit increases the value, and clicking on the lower part of the digit decreases the value; (b) by double clicking on the waterfall display at the desired frequency; or (c) by entering the desired frequency in the "Quick Set Frequency" box. That value is in Hz and can be the complete integer digits (e.g. 14250000) or in scientific notation (e.g. 14.25e6).
 10. To terminate that window, click the "X" in the upper right corner.
@@ -135,7 +136,7 @@ python3 -u SSB_rcv_4.py
 
 ## Testing
 
-For testing with an audio cable between the VWS_SDR_sim_4 and the SSB_rcv_4 programs, audio dongles seem to work better than integrated sound cards. The audio level of the input to SSB_rcv_4 needs to be adjusted so that it is high enough to provide a good signal, but not overdriving the input.
+For testing with an audio cable between the VWS_SDR_sim_4 and the SSB_rcv_6 programs, audio dongles seem to work better than integrated sound cards. The audio level of the input to SSB_rcv_6 needs to be adjusted so that it is high enough to provide a good signal, but not overdriving the input.
 
 To test with ZMQ (TCP/IP) links between the VWS_SDR_sim and the SSB_rcv programs, using VWS_SDR_sim_3 and SSB_rcv_5 has given good results. The "Screenshot from 2025-02-10.png" shows an "over the air" signal. Even though the level was not much above the noise floor, the audio was clear and easy to understand.
 

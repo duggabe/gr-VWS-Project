@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: GPL-3.0
 #
 # GNU Radio Python Flow Graph
-# Title: SSB_rcv_5
+# Title: SSB_rcv_6
 # Author: Barry Duggan
 # Copyright: CC-BY-SA-4.0
 # Description: Filter method
@@ -32,12 +32,12 @@ import sip
 
 
 
-class SSB_rcv_5(gr.top_block, Qt.QWidget):
+class SSB_rcv_6(gr.top_block, Qt.QWidget):
 
     def __init__(self):
-        gr.top_block.__init__(self, "SSB_rcv_5", catch_exceptions=True)
+        gr.top_block.__init__(self, "SSB_rcv_6", catch_exceptions=True)
         Qt.QWidget.__init__(self)
-        self.setWindowTitle("SSB_rcv_5")
+        self.setWindowTitle("SSB_rcv_6")
         qtgui.util.check_set_qss()
         try:
             self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
@@ -55,7 +55,7 @@ class SSB_rcv_5(gr.top_block, Qt.QWidget):
         self.top_grid_layout = Qt.QGridLayout()
         self.top_layout.addLayout(self.top_grid_layout)
 
-        self.settings = Qt.QSettings("GNU Radio", "SSB_rcv_5")
+        self.settings = Qt.QSettings("GNU Radio", "SSB_rcv_6")
 
         try:
             geometry = self.settings.value("geometry")
@@ -113,7 +113,6 @@ class SSB_rcv_5(gr.top_block, Qt.QWidget):
             self.top_grid_layout.setRowStretch(r, 1)
         for c in range(0, 1):
             self.top_grid_layout.setColumnStretch(c, 1)
-        self.zeromq_sub_source_0 = zeromq.sub_source(gr.sizeof_gr_complex, 1, 'tcp://127.0.0.1:49201', 100, False, (-1), '', False)
         self.zeromq_pub_msg_sink_0 = zeromq.pub_msg_sink('tcp://127.0.0.1:49204', 100, True)
         self.qtgui_waterfall_sink_x_0 = qtgui.waterfall_sink_c(
             1024, #size
@@ -184,7 +183,9 @@ class SSB_rcv_5(gr.top_block, Qt.QWidget):
         self.blocks_selector_0 = blocks.selector(gr.sizeof_gr_complex*1,sb_sel,0)
         self.blocks_selector_0.set_enabled(True)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff((10**(volume/20)))
+        self.blocks_float_to_complex_0 = blocks.float_to_complex(1)
         self.blocks_complex_to_real_0 = blocks.complex_to_real(1)
+        self.audio_source_0 = audio.source(samp_rate, '', True)
         self.audio_sink_0_0 = audio.sink(48000, '', True)
 
 
@@ -196,18 +197,20 @@ class SSB_rcv_5(gr.top_block, Qt.QWidget):
         self.msg_connect((self.qtgui_msgdigitalnumbercontrol_0, 'valueout'), (self.qtgui_waterfall_sink_x_0, 'freq'))
         self.msg_connect((self.qtgui_msgdigitalnumbercontrol_0, 'valueout'), (self.zeromq_pub_msg_sink_0, 'in'))
         self.msg_connect((self.qtgui_waterfall_sink_x_0, 'freq'), (self.qtgui_msgdigitalnumbercontrol_0, 'valuein'))
+        self.connect((self.audio_source_0, 1), (self.blocks_float_to_complex_0, 1))
+        self.connect((self.audio_source_0, 0), (self.blocks_float_to_complex_0, 0))
         self.connect((self.blocks_complex_to_real_0, 0), (self.blocks_multiply_const_vxx_0, 0))
+        self.connect((self.blocks_float_to_complex_0, 0), (self.blocks_selector_0, 0))
+        self.connect((self.blocks_float_to_complex_0, 0), (self.blocks_swapiq_0, 0))
+        self.connect((self.blocks_float_to_complex_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.audio_sink_0_0, 0))
         self.connect((self.blocks_selector_0, 0), (self.fft_filter_xxx_0, 0))
         self.connect((self.blocks_swapiq_0, 0), (self.blocks_selector_0, 1))
         self.connect((self.fft_filter_xxx_0, 0), (self.blocks_complex_to_real_0, 0))
-        self.connect((self.zeromq_sub_source_0, 0), (self.blocks_selector_0, 0))
-        self.connect((self.zeromq_sub_source_0, 0), (self.blocks_swapiq_0, 0))
-        self.connect((self.zeromq_sub_source_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
 
 
     def closeEvent(self, event):
-        self.settings = Qt.QSettings("GNU Radio", "SSB_rcv_5")
+        self.settings = Qt.QSettings("GNU Radio", "SSB_rcv_6")
         self.settings.setValue("geometry", self.saveGeometry())
         self.stop()
         self.wait()
@@ -253,7 +256,7 @@ class SSB_rcv_5(gr.top_block, Qt.QWidget):
 
 
 
-def main(top_block_cls=SSB_rcv_5, options=None):
+def main(top_block_cls=SSB_rcv_6, options=None):
 
     qapp = Qt.QApplication(sys.argv)
 
